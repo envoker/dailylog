@@ -14,7 +14,6 @@ type Config struct {
 	FileExt        string `json:"file-ext" yaml:"file-ext"`
 	KeepMaxDays    int    `json:"keep-max-days" yaml:"keep-max-days"`
 	RotateInterval int    `json:"rotate-interval" yaml:"rotate-interval"`
-	FlushInterval  int    `json:"flush-interval" yaml:"flush-interval"`
 }
 
 type Writer struct {
@@ -48,10 +47,6 @@ func New(c Config) (*Writer, error) {
 		w.wg.Add(1)
 		go loopRotate(w.wg, w.quit, c.RotateInterval, w)
 	}
-	if c.FlushInterval > 0 {
-		w.wg.Add(1)
-		go loopFlush(w.wg, w.quit, c.FlushInterval, w)
-	}
 
 	return w, nil
 }
@@ -73,7 +68,7 @@ func (w *Writer) Close() error {
 	close(w.quit)
 	w.wg.Wait()
 
-	err := w.fw.Close()
+	err := w.fw.close()
 	w.fw = nil
 	return err
 }
@@ -99,19 +94,7 @@ func (w *Writer) Rotate() error {
 		return errWriterIsClosed
 	}
 
-	w.fw.Close()
+	w.fw.close()
 
 	return w.rm.Run() // Remove old
-}
-
-func (w *Writer) Flush() error {
-
-	w.m.Lock()
-	defer w.m.Unlock()
-
-	if w.fw == nil {
-		return errWriterIsClosed
-	}
-
-	return w.fw.Flush()
 }

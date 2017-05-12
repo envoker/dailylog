@@ -1,7 +1,6 @@
 package dailylog
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,7 +15,6 @@ type fileWriter struct {
 
 	d    date.Date
 	file *os.File
-	bw   *bufio.Writer
 }
 
 func newFileWriter(dir string, pfn paramsFileName) *fileWriter {
@@ -33,7 +31,7 @@ func (fw *fileWriter) write(data []byte) (int, error) {
 
 	if fw.file != nil {
 		if !d.Equal(fw.d) {
-			fw.Close()
+			fw.close()
 		}
 	}
 
@@ -48,33 +46,16 @@ func (fw *fileWriter) write(data []byte) (int, error) {
 
 		fw.d = d
 		fw.file = file
-		fw.bw = bufio.NewWriter(file)
 	}
 
-	return fw.bw.Write(data)
+	return fw.file.Write(data)
 }
 
-func (fw *fileWriter) Close() error {
-
-	if fw.bw != nil {
-		fw.bw.Flush()
-		fw.bw = nil
-	}
-
+func (fw *fileWriter) close() error {
 	if fw.file != nil {
 		err := fw.file.Close()
 		fw.file = nil
 		return err
-	}
-
-	return nil
-}
-
-func (fw *fileWriter) Flush() error {
-	if fw.bw != nil {
-		if err := fw.bw.Flush(); err != nil {
-			return err
-		}
 	}
 	return nil
 }

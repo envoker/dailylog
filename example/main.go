@@ -17,9 +17,9 @@ import (
 
 func main() {
 
-	//fn := logFiller
+	fn := logFiller
 	//fn := loglFiller
-	fn := configJson
+	//fn := configJson
 	//fn := configYaml
 
 	if err := fn(); err != nil {
@@ -35,7 +35,6 @@ func configJson() error {
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 24 * 60,
-		FlushInterval:  5,
 	}
 
 	data, err := json.MarshalIndent(a, "", "\t")
@@ -64,7 +63,6 @@ func configYaml() error {
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 24 * 60,
-		FlushInterval:  5,
 	}
 
 	data, err := yaml.Marshal(a)
@@ -93,7 +91,6 @@ func logFiller() error {
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 24 * 60,
-		FlushInterval:  5,
 	}
 
 	w, err := dlog.New(config)
@@ -134,7 +131,6 @@ func loglFiller() error {
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 24 * 60,
-		FlushInterval:  5,
 	}
 
 	w, err := dlog.New(config)
@@ -192,7 +188,6 @@ func test1() error {
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 5,
-		FlushInterval:  2,
 	}
 
 	w, err := dlog.New(config)
