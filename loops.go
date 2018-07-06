@@ -9,7 +9,7 @@ type rotator interface {
 	Rotate() error
 }
 
-func loopRotate(wg *sync.WaitGroup, quit chan struct{}, interval int, r rotator) {
+func loopRotate(wg *sync.WaitGroup, quit <-chan struct{}, interval int, r rotator) {
 
 	defer wg.Done()
 

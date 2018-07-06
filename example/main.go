@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-
 	fn := logFiller
 	//fn := loglFiller
 	//fn := configJson
@@ -87,7 +86,7 @@ func logFiller() error {
 
 	config := dlog.Config{
 		Dirname:        "logs",
-		FilePrefix:     "test",
+		FilePrefix:     "test_",
 		FileExt:        ".log",
 		KeepMaxDays:    28,
 		RotateInterval: 24 * 60,
@@ -99,7 +98,7 @@ func logFiller() error {
 	}
 	defer w.Close()
 
-	logger := log.New(w, "record ", log.Lmicroseconds)
+	logger := log.New(w, "", log.Ldate|log.Lmicroseconds)
 
 	const n = 100
 	wg := new(sync.WaitGroup)

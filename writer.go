@@ -9,11 +9,11 @@ import (
 
 // Intervals in minutes
 type Config struct {
-	Dirname        string `json:"dirname" yaml:"dirname"`
-	FilePrefix     string `json:"file-prefix" yaml:"file-prefix"`
-	FileExt        string `json:"file-ext" yaml:"file-ext"`
-	KeepMaxDays    int    `json:"keep-max-days" yaml:"keep-max-days"`
-	RotateInterval int    `json:"rotate-interval" yaml:"rotate-interval"`
+	Dirname        string `json:"dirname"         yaml:"dirname"         toml:"dirname"`
+	FilePrefix     string `json:"file-prefix"     yaml:"file-prefix"     toml:"file-prefix"`
+	FileExt        string `json:"file-ext"        yaml:"file-ext"        toml:"file-ext"`
+	KeepMaxDays    int    `json:"keep-max-days"   yaml:"keep-max-days"   toml:"keep-max-days"`
+	RotateInterval int    `json:"rotate-interval" yaml:"rotate-interval" toml:"rotate-interval"`
 }
 
 type Writer struct {
