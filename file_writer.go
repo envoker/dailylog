@@ -52,10 +52,10 @@ func (fw *fileWriter) write(data []byte) (int, error) {
 }
 
 func (fw *fileWriter) close() error {
-	if fw.file != nil {
-		err := fw.file.Close()
-		fw.file = nil
-		return err
+	if fw.file == nil {
+		return nil
 	}
-	return nil
+	err := fw.file.Close()
+	fw.file = nil
+	return err
 }

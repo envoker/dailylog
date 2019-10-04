@@ -9,13 +9,13 @@ type rotator interface {
 	Rotate() error
 }
 
-func loopRotate(wg *sync.WaitGroup, quit <-chan struct{}, interval int, r rotator) {
+func rotateWorker(wg *sync.WaitGroup, quit <-chan struct{}, d time.Duration, r rotator) {
 
 	defer wg.Done()
 
 	r.Rotate()
 
-	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
+	ticker := time.NewTicker(d)
 	defer ticker.Stop()
 
 	for {

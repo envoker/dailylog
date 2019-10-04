@@ -5,19 +5,21 @@ import (
 	"io"
 	"os"
 	"sync"
+
+	"github.com/envoker/dailylog/period"
 )
 
 // Intervals in minutes
 type Config struct {
-	Dirname        string `json:"dirname"         yaml:"dirname"         toml:"dirname"`
-	FilePrefix     string `json:"file-prefix"     yaml:"file-prefix"     toml:"file-prefix"`
-	FileExt        string `json:"file-ext"        yaml:"file-ext"        toml:"file-ext"`
-	KeepMaxDays    int    `json:"keep-max-days"   yaml:"keep-max-days"   toml:"keep-max-days"`
-	RotateInterval int    `json:"rotate-interval" yaml:"rotate-interval" toml:"rotate-interval"`
+	Dirname        string        `json:"dirname"         yaml:"dirname"         toml:"dirname"`
+	FilePrefix     string        `json:"file-prefix"     yaml:"file-prefix"     toml:"file-prefix"`
+	FileExt        string        `json:"file-ext"        yaml:"file-ext"        toml:"file-ext"`
+	KeepMaxDays    int           `json:"keep-max-days"   yaml:"keep-max-days"   toml:"keep-max-days"`
+	RotateInterval period.Period `json:"rotate-interval" yaml:"rotate-interval" toml:"rotate-interval"`
 }
 
 type Writer struct {
-	m    sync.Mutex
+	guard    sync.Mutex
 	quit chan struct{}
 	wg   *sync.WaitGroup
 	fw   *fileWriter
@@ -45,7 +47,7 @@ func New(c Config) (*Writer, error) {
 
 	if c.RotateInterval > 0 {
 		w.wg.Add(1)
-		go loopRotate(w.wg, w.quit, c.RotateInterval, w)
+		go rotateWorker(w.wg, w.quit, c.RotateInterval.Duration(), w)
 	}
 
 	return w, nil
@@ -57,8 +59,8 @@ var _ io.WriteCloser = &Writer{}
 
 func (w *Writer) Close() error {
 
-	w.m.Lock()
-	defer w.m.Unlock()
+	w.guard.Lock()
+	defer w.guard.Unlock()
 
 	if w.fw == nil {
 		return errWriterIsClosed
@@ -75,8 +77,8 @@ func (w *Writer) Close() error {
 
 func (w *Writer) Write(data []byte) (n int, err error) {
 
-	w.m.Lock()
-	defer w.m.Unlock()
+	w.guard.Lock()
+	defer w.guard.Unlock()
 
 	if w.fw == nil {
 		return 0, errWriterIsClosed
@@ -87,8 +89,8 @@ func (w *Writer) Write(data []byte) (n int, err error) {
 
 func (w *Writer) Rotate() error {
 
-	w.m.Lock()
-	defer w.m.Unlock()
+	w.guard.Lock()
+	defer w.guard.Unlock()
 
 	if w.fw == nil {
 		return errWriterIsClosed

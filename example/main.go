@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	dlog "github.com/envoker/dailylog"
+	dperiod "github.com/envoker/dailylog/period"
 	"github.com/envoker/golang/logging/logl"
 )
 
@@ -33,7 +34,7 @@ func configJson() error {
 		FilePrefix:     "test",
 		FileExt:        ".log",
 		KeepMaxDays:    28,
-		RotateInterval: 24 * 60,
+		RotateInterval: 60 * dperiod.Second,
 	}
 
 	data, err := json.MarshalIndent(a, "", "\t")
