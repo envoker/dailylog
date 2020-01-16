@@ -19,11 +19,11 @@ type Config struct {
 }
 
 type Writer struct {
-	guard    sync.Mutex
-	quit chan struct{}
-	wg   *sync.WaitGroup
-	fw   *fileWriter
-	rm   *oldRemover
+	guard sync.Mutex
+	quit  chan struct{}
+	wg    *sync.WaitGroup
+	fw    *fileWriter
+	rm    *oldRemover
 }
 
 func New(c Config) (*Writer, error) {
@@ -66,12 +66,20 @@ func (w *Writer) Close() error {
 		return errWriterIsClosed
 	}
 
-	// Stop worker
-	close(w.quit)
-	w.wg.Wait()
+	// unlock guard
+	{
+		w.guard.Unlock()
+
+		// Stop worker
+		close(w.quit)
+		w.wg.Wait()
+
+		w.guard.Lock()
+	}
 
 	err := w.fw.close()
 	w.fw = nil
+
 	return err
 }
 
